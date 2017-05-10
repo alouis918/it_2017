@@ -1,2 +1,5 @@
 .idea
 univDocs.iml
+/bin/
+.project
+.classpath
