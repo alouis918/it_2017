@@ -6,8 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.nio.file.Files;
-import java.nio.file.Path;
+
 
 public class ServerDispatcher  extends Thread {
 	Socket clientSocket=null;
@@ -15,12 +14,13 @@ public class ServerDispatcher  extends Thread {
 	OutputStream out=null;
 	
 	String filePath="G:\\test.txt";
+	
 	BufferedInputStream bis=null;
 	FileInputStream fis=null;
 	public ServerDispatcher(Socket fromClientSocket) throws IOException
 	{
 		clientSocket=fromClientSocket;
-	
+		//in=clientSocket.getInputStream();
 		out=clientSocket.getOutputStream();
 	}
 public void run()
@@ -30,19 +30,23 @@ public void run()
 		File file=new File(filePath);
 		byte [] byteArray=new byte[(int)file.length()];
 		fis= new FileInputStream(file);
+		JSONObject json=new JSONObject();
+		json.addDouble("lastmodified", file.lastModified());
+		json.addDouble("length", file.length());
+		System.out.println(json.getString());
+		out.write(json.getString().getBytes());
 		/*
 		bis= new BufferedInputStream(fis);
 		bis.read(byteArray,0,byteArray.length);
 		out.write(byteArray,0,byteArray.length);
-		out.flush();
-		
-		*/
-	
+		out.flush();		
+		*/	
 		 int len;
 		while((len=fis.read(byteArray))!=-1)
 		 {
 			 out.write(byteArray, 0, len);
 		 }
+		
 	
 		out.flush();
 	} catch (FileNotFoundException e) {

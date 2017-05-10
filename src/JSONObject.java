@@ -1,62 +1,120 @@
-import java.util.*;
+/**
+ * 
+ */
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
- * Created by Louis on 08-May-17.
+ * @author Freddy
+ *
  */
 public class JSONObject implements IJsonSerialize {
-    private HashMap<String, Object> jsonData = new HashMap<>();
+	private String JSONString=null;
+	private Map<String, Object> internalValues =null;
 
-    @Override
-    public void addString(String key, String str) {
-        if (!jsonData.containsKey(key)){
-            jsonData.put(key, str);
-        }else{
+	/* (non-Javadoc)
+	 * @see jsonLibrary.IJsonSerialize#addString(java.lang.String, java.lang.String)
+	 */
+	public JSONObject() {
+		// TODO Auto-generated constructor stub
+		internalValues=new HashMap<String,Object>();
+	}
+	@Override
+	public void addString(String key, String str) {
+		// TODO Auto-generated method stub
+		internalValues.put(key, str);
+	}
 
-        }
+	/* (non-Javadoc)
+	 * @see jsonLibrary.IJsonSerialize#addInteger(java.lang.String, int)
+	 */
+	@Override
+	public void addInteger(String key, int num) {
+		// TODO Auto-generated method stub
+		internalValues.put(key, num);
 
-    }
+	}
 
-    @Override
-    public void addInteger(String key, int num) {
-        if(!jsonData.containsKey(key)){
-            jsonData.put(key, num);
-        }
-    }
+	/* (non-Javadoc)
+	 * @see jsonLibrary.IJsonSerialize#addDouble(java.lang.String, double)
+	 */
+	@Override
+	public void addDouble(String key, double num) {
+		// TODO Auto-generated method stub
+		internalValues.put(key, num);
+	}
 
-    @Override
-    public void addDouble(String key, double num) {
-        if(!jsonData.containsKey(key)){
-            jsonData.put(key, num);
-        }
-    }
+	/* (non-Javadoc)
+	 * @see jsonLibrary.IJsonSerialize#addArray(java.lang.String, java.util.Map)
+	 */
+	@Override
+	public void addArray(String key, Map<String, Object> array) {
+		// TODO Auto-generated method stub
 
-    @Override
-    public void addArray(String key, Map<String, Object> array) {
-        ArrayList<Object> data = (ArrayList<Object>) array.values();
-        Object[] obj = new Object[array.size()];
-        for (int i = 0; i < array.size(); i++) {
-            obj[i] = data.get(i);
-        }
-        jsonData.put(key, obj);
-    }
+	}
 
-    @Override
-    public String getString() {
-        return null;
-    }
+	/* (non-Javadoc)
+	 * @see jsonLibrary.IJsonSerialize#getString()
+	 */
+	@Override
+	public String getString() {
+		// TODO Auto-generated method stub
+		JSONString="{";
+		for (Map.Entry<String,Object> element : internalValues.entrySet()) 
+		{
+			JSONString+=element.getKey()+":"+element.getValue().toString()+",";
+		}
+		JSONString+= "}";		
+		return JSONString.replaceFirst("(,.$)", "}");
+	}
 
-    @Override
-    public void parseString(String str) {
+	/* (non-Javadoc)
+	 * @see jsonLibrary.IJsonSerialize#parseString(java.lang.String)
+	 */
+	@Override
+	public void parseString(String str) {
+		// TODO Auto-generated method stub
+		Pattern p = Pattern.compile(":");
+		 Matcher m = p.matcher(str);
+		 Boolean keyFound=true; String key=null,val=null;
+		 while(m.find())
+		 {
+			 if(keyFound)
+			  {
+				key= m.group();
+				 keyFound=false;
+			  }
+			 else
+			 {
+				 val=m.group();
+				 keyFound=true;
+			 }
+			 internalValues.put(key, val);
+		 }
 
-    }
+	}
 
-    @Override
-    public Map<String, Object> getObjects() {
-        return null;
-    }
+	/* (non-Javadoc)
+	 * @see jsonLibrary.IJsonSerialize#getObjects()
+	 */
+	@Override
+	public Map<String, Object> getObjects() {
+		// TODO Auto-generated method stub
+		
+		return internalValues;
+	}
 
-    @Override
-    public Object getKey(String key) {
-        return jsonData.get(key);
-    }
+	/* (non-Javadoc)
+	 * @see jsonLibrary.IJsonSerialize#getKey(java.lang.String)
+	 */
+	@Override
+	public Object getKey(String key) {
+		// TODO Auto-generated method stub
+		
+		return internalValues.get(key);
+	}
+
 }
