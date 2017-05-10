@@ -3,3 +3,9 @@ univDocs.iml
 /bin/
 .project
 .classpath
+out/production/univDocs/Client.class
+out/production/univDocs/IJsonSerialize.class
+out/production/univDocs/JSONObject.class
+out/production/univDocs/Server.class
+out/production/univDocs/ServerDispatcher.class
+out/production/univDocs/it_2017/Main.class
