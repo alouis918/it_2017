@@ -30,11 +30,7 @@ public void run()
 		File file=new File(filePath);
 		byte [] byteArray=new byte[(int)file.length()];
 		fis= new FileInputStream(file);
-		JSONObject json=new JSONObject();
-		json.addDouble("lastmodified", file.lastModified());
-		json.addDouble("length", file.length());
-		System.out.println(json.getString());
-		out.write(json.getString().getBytes());
+		
 		/*
 		bis= new BufferedInputStream(fis);
 		bis.read(byteArray,0,byteArray.length);
