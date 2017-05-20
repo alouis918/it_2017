@@ -65,7 +65,7 @@ public class JSONObject implements IJsonSerialize {
 		JSONString="{";
 		for (Map.Entry<String,Object> element : internalValues.entrySet()) 
 		{
-			JSONString+=element.getKey()+":"+element.getValue().toString()+",";
+			JSONString+="\""+element.getKey()+"\""+":"+element.getValue()+",";
 		}
 		JSONString+= "}";		
 		return JSONString.replaceFirst("(,.$)", "}");

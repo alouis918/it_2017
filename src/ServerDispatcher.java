@@ -33,6 +33,7 @@ public void run()
 		JSONObject json=new JSONObject();
 		json.addDouble("lastmodified", file.lastModified());
 		json.addDouble("length", file.length());
+		json.addString("ngambe", "Arthur");
 		System.out.println(json.getString());
 		out.write(json.getString().getBytes());
 		/*
