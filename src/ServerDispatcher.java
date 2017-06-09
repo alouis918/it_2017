@@ -1,73 +1,167 @@
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.net.Socket;
 
 
 public class ServerDispatcher  extends Thread {
 	Socket clientSocket=null;
 	InputStream in=null;
-	OutputStream out=null;
-	
-	String filePath="G:\\test.txt";
-	
+	OutputStream out=null;	
+	String rootPath="G:\\serverDIrectory";	
 	BufferedInputStream bis=null;
 	FileInputStream fis=null;
-	public ServerDispatcher(Socket fromClientSocket) throws IOException
+	byte [] byteArray;
+	File file=null;
+
+	/*
+	 * gets path to a file and returns a fileinputstream pointing to it
+	 */
+	FileInputStream getFileInputStream(String FileName) throws IOException 
 	{
-		clientSocket=fromClientSocket;
-		//in=clientSocket.getInputStream();
-		out=clientSocket.getOutputStream();
+		try {
+			file=new File(FileName);
+			byteArray=new byte[(int)file.length()];
+			return  new FileInputStream(file);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			out.write("File could not be found".getBytes());
+			out.flush();
+		}
+		return null;
 	}
-public void run()
-{
-	try {
-		System.out.println("Connection established with"+clientSocket.toString());
-		File file=new File(filePath);
-		byte [] byteArray=new byte[(int)file.length()];
-		fis= new FileInputStream(file);
-		JSONObject json=new JSONObject();
-		json.addDouble("lastmodified", file.lastModified());
-		json.addDouble("length", file.length());
-		json.addString("ngambe", "Arthur");
-		System.out.println(json.getString());
-		out.write(json.getString().getBytes());
-		/*
+	/**
+	 * 
+	 * @param fis get file InputStream pointing to a 
+	 * @return
+	 */
+	String getFileNameFromPath()
+	{
+		String [] array = null;
+		try {
+			BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+			String inputLine;
+			inputLine = in.readLine();
+			array=inputLine.split(" ");   
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return array[1];
+	}
+	/**
+	 * parse a file name given in the form \filename
+	 * @param fileName Name of the file to be returned
+	 * @return fileInputStrem to pointing to the file.
+	 * @throws IOException
+	 */
+	FileInputStream parseFileName(String fileName) throws IOException
+	{
+		FileInputStream fis=null;
+		switch (fileName)
+		{
+		case "/":
+			fis= getFileInputStream( rootPath+"\\\\index.html");	
+			break;
+		default:
+		{
+			String temp=fileName.replace("/", "\\\\");  
+			fis=getFileInputStream( rootPath+temp);
+			break;
+		}
+
+		}
+		return fis;
+	}
+	/**
+	 * send the file over the socket
+	 * @param fis
+	 * @throws IOException
+	 */
+	void sendFileOverSocker(FileInputStream fis) throws IOException
+	{
+		int len;
+		while((len=fis.read(byteArray))!=-1)
+		{
+			out.write(byteArray, 0, len);
+		}
+		out.flush();
+	}
+
+	/**
+	 * 
+	 * @param fis
+	 * @throws IOException
+	 */
+	void sendFIleOverSOcketBuffered(FileInputStream fis) throws IOException
+	{
+		//Writing/sending the file  to the client passing via a buffer
 		bis= new BufferedInputStream(fis);
 		bis.read(byteArray,0,byteArray.length);
 		out.write(byteArray,0,byteArray.length);
-		out.flush();		
-		*/	
-		 int len;
-		while((len=fis.read(byteArray))!=-1)
-		 {
-			 out.write(byteArray, 0, len);
-		 }
-		
-	
 		out.flush();
-	} catch (FileNotFoundException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	} catch (IOException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	}finally {
+	}
+
+	/**
+	 * Constructor
+	 * @param fromClientSocket
+	 * @throws IOException
+	 */
+	public ServerDispatcher(Socket fromClientSocket) throws IOException
+	{
+		clientSocket=fromClientSocket;
+		in=clientSocket.getInputStream();
+		out=clientSocket.getOutputStream();
+	}
+
+	void sendFIleInfoWithJSON() throws IOException
+	{
+		JSONObject json=new JSONObject();
+		json.addDouble("lastmodified", file.lastModified());
+		json.addDouble("length", file.length());		
+		out.write(json.getString().getBytes());
+	}
+	public void run()
+	{
+		try {
+			System.out.println("Connection established with"+clientSocket.toString());
+			String fileName = getFileNameFromPath();
+			FileInputStream fileStream =parseFileName(fileName);
+			//sendFIleInfoWithJSON();
+
+			out.write("\n".getBytes());
+			if ( fileStream ==null)
+				return;     
+			sendFileOverSocker(fileStream);
+
+
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}finally {
 			try {
 				if(bis!=null) bis.close();
 				if(clientSocket!=null) clientSocket.close();
 				if(out!=null)out.close();
+				if(in!=null) in.close();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
+
+		}
+
 	}
-	
-}
 
 }
