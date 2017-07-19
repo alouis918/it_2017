@@ -14,7 +14,7 @@ public class Client {
 		byte [] receivedBytes =new byte[1024*1000];
 		BufferedOutputStream bos= null;
 		FileOutputStream fos=null;
-		String fileToReceive="G:\\testReceived.txt";
+		String fileToReceive="C:\\Users\\PaulArthur\\Desktop\\SoSe17\\Internet Techno\\Übung\\files\\testReceived.txt";
 		// TODO Auto-generated method stub
 		
 		try(Socket clientSocket = new Socket("127.0.0.1",1234))

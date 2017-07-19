@@ -11,11 +11,12 @@ import java.io.PrintWriter;
 import java.net.Socket;
 
 
-public class ServerDispatcher  extends Thread {
+public class ServerDispatcher  extends Thread 
+{
 	Socket clientSocket=null;
 	InputStream in=null;
 	OutputStream out=null;	
-	String rootPath="G:\\serverDIrectory";	
+	String rootPath="C:\\Users\\PaulArthur\\Desktop\\SoSe17\\Internet Techno\\Übung\\files";	
 	BufferedInputStream bis=null;
 	FileInputStream fis=null;
 	byte [] byteArray;
@@ -36,7 +37,7 @@ public class ServerDispatcher  extends Thread {
 			out.flush();
 		}
 		return null;
-	}
+}
 	/**
 	 * 
 	 * @param fis get file InputStream pointing to a 
@@ -89,11 +90,28 @@ public class ServerDispatcher  extends Thread {
 	void sendFileOverSocker(FileInputStream fis) throws IOException
 	{
 		int len;
+		PrintWriter print = new PrintWriter(out);
+		// String html = "<!DOCTYPE html><html lang =\"en\"><head><meta charset=\"UTF-8\"><title>Bonjour</title></head><BODY><P>Bonjour</P></BODY></html>";
+		
 		while((len=fis.read(byteArray))!=-1)
 		{
-			out.write(byteArray, 0, len);
 		}
-		out.flush();
+		/*
+		print.println("HTTP/1.1 200 OK");
+		print.println("Content-Type: text/html");
+		
+		print.println("Content-Length: " + byteArray.length );
+		*/
+		print.println();
+		String response = "";
+		for (byte b : byteArray) {
+			response+=(char)b;				
+		}			
+		
+		print.println(response);
+		print.flush();
+		print.close();
+		//out.flush();
 	}
 
 	/**
