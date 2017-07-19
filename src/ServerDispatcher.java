@@ -11,12 +11,12 @@ import java.io.PrintWriter;
 import java.net.Socket;
 
 
-public class ServerDispatcher  extends Thread 
+public class ServerDispatcher  extends Thread
 {
 	Socket clientSocket=null;
 	InputStream in=null;
 	OutputStream out=null;	
-	String rootPath="C:\\Users\\PaulArthur\\Desktop\\SoSe17\\Internet Techno\\Übung\\files";	
+	String rootPath="D:\\uniHtml";
 	BufferedInputStream bis=null;
 	FileInputStream fis=null;
 	byte [] byteArray;
@@ -87,27 +87,27 @@ public class ServerDispatcher  extends Thread
 	 * @param fis
 	 * @throws IOException
 	 */
-	void sendFileOverSocker(FileInputStream fis) throws IOException
+	void sendFileOverSocket(FileInputStream fis) throws IOException
 	{
 		int len;
 		PrintWriter print = new PrintWriter(out);
 		// String html = "<!DOCTYPE html><html lang =\"en\"><head><meta charset=\"UTF-8\"><title>Bonjour</title></head><BODY><P>Bonjour</P></BODY></html>";
-		
+
 		while((len=fis.read(byteArray))!=-1)
 		{
 		}
 		/*
 		print.println("HTTP/1.1 200 OK");
 		print.println("Content-Type: text/html");
-		
+
 		print.println("Content-Length: " + byteArray.length );
 		*/
 		print.println();
 		String response = "";
 		for (byte b : byteArray) {
-			response+=(char)b;				
-		}			
-		
+			response+=(char)b;
+		}
+
 		print.println(response);
 		print.flush();
 		print.close();
@@ -152,13 +152,14 @@ public class ServerDispatcher  extends Thread
 		try {
 			System.out.println("Connection established with"+clientSocket.toString());
 			String fileName = getFileNameFromPath();
-			FileInputStream fileStream =parseFileName(fileName);
+			FileInputStream fileStream = parseFileName(fileName);
 			//sendFIleInfoWithJSON();
 
 			out.write("\n".getBytes());
-			if ( fileStream ==null)
-				return;     
-			sendFileOverSocker(fileStream);
+			if ( fileStream == null){
+				 return;
+			}
+			sendFileOverSocket(fileStream);
 
 
 		} catch (FileNotFoundException e) {
