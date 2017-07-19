@@ -8,7 +8,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.lang.reflect.Array;
 import java.net.Socket;
+import java.util.Arrays;
 
 
 public class ServerDispatcher  extends Thread
@@ -43,7 +45,7 @@ public class ServerDispatcher  extends Thread
 	 * @param fis get file InputStream pointing to a 
 	 * @return
 	 */
-	String getFileNameFromPath()
+	String[] getFileNameFromPath()
 	{
 		String [] array = null;
 		try {
@@ -56,7 +58,20 @@ public class ServerDispatcher  extends Thread
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return array[1];
+		return array;
+	}
+
+	String[] postResponse(){
+		String[] array = {};
+		try {
+			BufferedReader inBuffer = new BufferedReader(new InputStreamReader(in));
+			String inputLine;
+			inputLine = inBuffer.readLine();
+			array = inputLine.split("\n");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return  array;
 	}
 	/**
 	 * parse a file name given in the form \filename
@@ -70,7 +85,7 @@ public class ServerDispatcher  extends Thread
 		switch (fileName)
 		{
 		case "/":
-			fis= getFileInputStream( rootPath+"\\\\index.html");	
+			fis= getFileInputStream( rootPath+"\\\\todo.html");
 			break;
 		default:
 		{
@@ -87,21 +102,15 @@ public class ServerDispatcher  extends Thread
 	 * @param fis
 	 * @throws IOException
 	 */
-	void sendFileOverSocket(FileInputStream fis) throws IOException
+	void getResponse(FileInputStream fis) throws IOException
 	{
 		int len;
 		PrintWriter print = new PrintWriter(out);
-		// String html = "<!DOCTYPE html><html lang =\"en\"><head><meta charset=\"UTF-8\"><title>Bonjour</title></head><BODY><P>Bonjour</P></BODY></html>";
 
 		while((len=fis.read(byteArray))!=-1)
 		{
 		}
-		/*
-		print.println("HTTP/1.1 200 OK");
-		print.println("Content-Type: text/html");
 
-		print.println("Content-Length: " + byteArray.length );
-		*/
 		print.println();
 		String response = "";
 		for (byte b : byteArray) {
@@ -151,16 +160,26 @@ public class ServerDispatcher  extends Thread
 	{
 		try {
 			System.out.println("Connection established with"+clientSocket.toString());
-			String fileName = getFileNameFromPath();
-			FileInputStream fileStream = parseFileName(fileName);
-			//sendFIleInfoWithJSON();
+            String[] httpHeader = getFileNameFromPath();
 
-			out.write("\n".getBytes());
-			if ( fileStream == null){
-				 return;
-			}
-			sendFileOverSocket(fileStream);
+            if(httpHeader[0].equalsIgnoreCase("GET")){ // case where is a get request
+                FileInputStream fileStream = parseFileName(httpHeader[1]);
+                out.write("\n".getBytes());
+                if ( fileStream == null){
+                    return;
+                }
+                getResponse(fileStream);
+                //sendFIleInfoWithJSON();
+            }else if (httpHeader[0].equalsIgnoreCase("POST")){ // case where it is a post request
+                 System.out.println(Arrays.binarySearch(httpHeader,1,httpHeader.length,"\n")+1);
 
+				String [] str = postResponse();
+				System.out.println( str[1]);
+
+
+
+
+            }
 
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
