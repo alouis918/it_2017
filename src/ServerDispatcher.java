@@ -18,7 +18,7 @@ public class ServerDispatcher  extends Thread
 	Socket clientSocket=null;
 	InputStream in=null;
 	OutputStream out=null;	
-	String rootPath="D:\\uniHtml";
+	String rootPath="src\\serverDirectory";
 	BufferedInputStream bis=null;
 	FileInputStream fis=null;
 	byte [] byteArray;
@@ -45,14 +45,40 @@ public class ServerDispatcher  extends Thread
 	 * @param fis get file InputStream pointing to a 
 	 * @return
 	 */
-	String[] getFileNameFromPath()
+	String [] getFileNameFromPath()
 	{
 		String [] array = null;
 		try {
 			BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 			String inputLine;
-			inputLine = in.readLine();
-			array=inputLine.split(" ");   
+			int a = 0;
+			String []str = null;
+			String temp="";
+		
+			int i =0;
+			
+//			while ((str = in.readLine()) != null) {
+//			      System.out.println(i+++str);
+//			    }
+//			while(true){
+//				temp= in.readLine();
+//				System.out.println("i= "+i+++" "+temp.length());	
+//				if (temp.length() == 0)					
+//				{
+//					break;
+//				}
+//				else 
+//					{
+//					str+=temp;
+//					//System.out.println(a+":"+str);
+//					}				
+//				}
+			//System.out.println("hihihihihih");
+			//System.out.println("str = " + str);
+			//inputLine = in.readLine();
+			
+			//inputLine=str;
+			//array=inputLine.split(" ");   
 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -85,7 +111,7 @@ public class ServerDispatcher  extends Thread
 		switch (fileName)
 		{
 		case "/":
-			fis= getFileInputStream( rootPath+"\\\\todo.html");
+			fis= getFileInputStream( rootPath+"\\\\index.html");
 			break;
 		default:
 		{
@@ -106,18 +132,34 @@ public class ServerDispatcher  extends Thread
 	{
 		int len;
 		PrintWriter print = new PrintWriter(out);
-
-		while((len=fis.read(byteArray))!=-1)
-		{
+		BufferedReader infile = new BufferedReader(new InputStreamReader(fis));
+		System.out.println("infile"+infile.readLine());
+//		while((len=fis.read(byteArray))!=-1)
+//		{
+//		}
+		String response1 = "HTTP/1.1 200 OK\r\n" +
+			    "Content-Length: 22\r\n" +
+			    "Content-Type: text/html\r\n\r\n";
+			    //+"<h1>hihih</h1>";
+		String response = "";
+		System.out.println("bytearray1"+byteArray.toString());
+		
+		for (byte b : byteArray) {
+			response+=(char)b;
 		}
-
+		System.out.println("bytearray2"+byteArray[0]);
+		System.out.println("response="+response);
+		System.out.println("response+response1="+response1+response);
+		
+		print.println(response1+response);
+		/*print.println(response1);
+		print.flush();
 		print.println();
 		String response = "";
 		for (byte b : byteArray) {
 			response+=(char)b;
 		}
-
-		print.println(response);
+		print.println(response);*/
 		print.flush();
 		print.close();
 		//out.flush();
@@ -159,9 +201,28 @@ public class ServerDispatcher  extends Thread
 	public void run()
 	{
 		try {
+			BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 			System.out.println("Connection established with"+clientSocket.toString());
+			String [] str = in.readLine().split(" ");
+			if(str[0].equalsIgnoreCase("GET"))
+			{
+				 FileInputStream fileStream = parseFileName(str[1]);
+				 if ( fileStream == null){
+	                 return;
+	             }
+	             getResponse(fileStream);
+			}
+			else
+			{
+				
+			}
+			
+			/*System.out.println("Connection established with"+clientSocket.toString());
             String[] httpHeader = getFileNameFromPath();
-
+            for (String string : httpHeader) {
+				
+            	System.out.print(string);
+			}
             if(httpHeader[0].equalsIgnoreCase("GET")){ // case where is a get request
                 FileInputStream fileStream = parseFileName(httpHeader[1]);
                 out.write("\n".getBytes());
@@ -171,16 +232,12 @@ public class ServerDispatcher  extends Thread
                 getResponse(fileStream);
                 //sendFIleInfoWithJSON();
             }else if (httpHeader[0].equalsIgnoreCase("POST")){ // case where it is a post request
-                 System.out.println(Arrays.binarySearch(httpHeader,1,httpHeader.length,"\n")+1);
-
+                 //System.out.println("hihih"+Arrays.binarySearch(httpHeader,1,httpHeader.length,"\r\n")+1);
+                 System.out.println(httpHeader[9]);
 				String [] str = postResponse();
 				System.out.println( str[1]);
-
-
-
-
             }
-
+*/
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
