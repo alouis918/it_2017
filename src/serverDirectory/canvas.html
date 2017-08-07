@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body onload="initialize()">
+    <div class="login" style="width: 300px; height: 300px; position: absolute; top:20px;left:330px; border: 2px solid">
+        <br><br>
+        <label for="username"> Username:</label>
+        <input type="text" name="username" id="username"><br>
+        <label for="password">Password:</label>
+        <input type="password" id="password"><br>
+        <input type="submit"  value="Login" onclick="onLogin()">
+    </div>
+
+    <canvas id="canvas" width="300" height="300" style="position:absolute;top:20px;left:20px;border:2px solid;"></canvas>
+    <div class="canvasControlls" style="height: 30px; width: 300px; position: absolute; top:321px;left:20px; border: 2px solid">
+        <label for="color"> Color:</label>
+        <select name="color" id="color" onchange="changeColor()">
+            <option value="black"> Black</option>
+            <option value="red"> Red</option>
+            <option value="green">Green</option>
+            <option value="yellow">Yellow</option>
+        </select> &nbsp; &nbsp;
+        <button onclick="reset()">Reset</button>
+        <button onclick="save()">Save To save</button>
+    </div>
+<script type="text/javascript">
+    var can, element;
+    function initialize() {
+         can = document.getElementById("canvas");
+        element = new LineDrawer(can);
+    }
+    function changeColor() {
+        var value = document.getElementById("color").value;
+        element.changeColor(value);
+    }
+    function reset() {
+        element.reset();
+    }
+    function save() {
+        var data = element.stringRepresentation();
+        var url = "";
+        XMlPoster(data, url);
+        console.log(data);
+    }
+    function onLogin() {
+      var username = document.getElementById("username").value;
+      var password = document.getElementById("password").value;
+      var data = "username="+username+ "&password="+ password +"";
+      var url = "127.0.0.1:1234/";
+      XMlPoster(data, url);
+    }
+    function XMlPoster(params, url) {
+        var http = new XMLHttpRequest();
+        http.open("POST", url, true);
+        //Send the proper header information along with the request
+        http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+        http.onreadystatechange = function() {//Call a function when the state changes.
+            if(http.readyState == 4 && http.status == 200) {
+                alert(http.responseText);
+            }
+        }
+        http.send(params);
+    }
+    function XMLGetMethod(url) {
+        var http = new XMLHttpRequest();
+        http.open("GET", url, true);
+        http.onreadystatechange = function() {//Call a function when the state changes.
+            if(http.readyState == 4 && http.status == 200) {
+                alert(http.responseText);
+            }
+        };
+        http.send();
+    }
+</script>
+<script type="text/javascript">
+    'use strict'
+    function LineDrawer(canvas) {
+        this.canvas = canvas;
+        this.prevX = 0;
+        this.prevY = 0;
+        this.currX = 0;
+        this.currY = 0;
+        this.flag = false;
+        this.dot_flag = false;
+        this.ctx = this.canvas.getContext("2d");
+        this.strokeStyle = "black";
+        this.lineWidth = 5;
+        this.addEventListener();
+    }
+
+    LineDrawer.prototype.addEventListener = function () {
+        var _this = this;
+        this.canvas.addEventListener("click", function (event) {
+            _this.getCoordinates("click", event);
+        }, false);
+        this.canvas.addEventListener("mouseup", function (event) {
+            _this.getCoordinates("up", event);
+        }, false);
+
+        this.canvas.addEventListener("mousemove", function (event) {
+            _this.getCoordinates("move", event);
+        }, false);
+        this.canvas.addEventListener("mousedown", function (event) {
+            _this.getCoordinates("down", event);
+        }, false);
+    };
+    LineDrawer.prototype.drawLine = function () {
+        this.ctx.beginPath();
+        this.ctx.moveTo(this.prevX, this.prevY);
+        this.ctx.lineTo(this.currX, this.currY);
+        this.ctx.strokeStyle = this.strokeStyle;
+        this.ctx.lineWidth = this.lineWidth;
+        this.ctx.stroke();
+        this.ctx.closePath();
+    };
+    LineDrawer.prototype.changeColor = function (color) {
+      this.strokeStyle = color;
+    };
+    LineDrawer.prototype.reset = function () {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    };
+    LineDrawer.prototype.stringRepresentation = function () {
+      return {prevX: this.prevX, prevY: this.prevY, currX: this.currX, currY: this.currY};
+    };
+    LineDrawer.prototype.getCoordinates = function (action, event) {
+        switch(action){
+            case "down":
+                this.prevX = event.clientX - this.canvas.offsetLeft;
+                this.prevY = event.clientY - this.canvas.offsetTop;
+                break;
+            case "move":
+                this.currX = event.clientX - this.canvas.offsetLeft;
+                this.currY = event.clientY - this.canvas.offsetTop;
+                break;
+            case "click":
+                this.prevX = this.currX;
+                this.prevY = this.currY;
+                this.currX = event.clientX - this.canvas.offsetLeft;
+                this.currY = event.clientY - this.canvas.offsetTop;
+                break;
+            case "up":
+                this.drawLine();
+            case "out":
+                this.flag = false;
+                break;
+        }
+    };
+</script>
+</body>
+</html>
