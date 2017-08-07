@@ -28,10 +28,11 @@ public class GetMethodeHandler {
         FileInputStream fis=null;
         if (searchForSubString(fileName, ".html"))
         {
-            fileName = fileName.replaceAll(".html", "").replaceAll("/", "");
+            fileName = fileName.replaceAll(".html", "");
             
         }
-        switch (fileName)
+         
+        switch (fileName.replaceAll("/", ""))
         {
         case "/":
             fis= getFileInputStream( rootPath+"\\\\index.html");
@@ -42,6 +43,9 @@ public class GetMethodeHandler {
         case "todoget":
             writeMessageToBrowser( ServerDispatcher.todoListContent, out );
             return null;
+        case "canvas":
+            fis= getFileInputStream( rootPath+"\\\\canvas.html");
+            break;
         default:
         {
             String temp=fileName.replace("/", "\\\\");  
